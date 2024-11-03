@@ -10,7 +10,7 @@ export NUM_MODEL_SPLITS=4
 export MODEL_SPLIT_NAME="split${NUM_MODEL_SPLITS}-llama-3point1-8b"
 
 export MAKE_TP="false"
-export BENCHMARK_MODE="flashattention" # Options: "e2e", "noattention", "flashattention", "vllm", "sglang"
+export BENCHMARK_MODE="sglang" # Options: "e2e", "noattention", "flashattention", "vllm", "sglang"
 
 if [[ "$MAKE_TP" == "true" ]]; then
 	python hydragen/make_tp_files.py "${FULL_MODEL_NAME}" "${MODEL_SAVE_DIR}/${MODEL_SPLIT_NAME}" --num-splits "${NUM_MODEL_SPLITS}"
