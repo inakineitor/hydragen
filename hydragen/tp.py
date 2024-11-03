@@ -143,7 +143,7 @@ def from_pretrained_tp(
         load_dir: where to load the model partitions
         dtype: data type for model
     """
-    
+
     config: LlamaConfig = LlamaConfig.from_pretrained(model_name)
 
     world_size = get_world_size()
@@ -164,7 +164,7 @@ def from_pretrained_tp(
     file = part_files[rank]
     print(f"Rank {rank} loading {file} (device {device})")
 
-    sd = torch.load(file, map_location=device)
+    sd = torch.load(file, map_location=device, weights_only=True)
 
     model.load_state_dict(sd, assign=True)
     model.to(device)
