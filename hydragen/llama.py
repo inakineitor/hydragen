@@ -734,6 +734,19 @@ class HydragenLlamaModel(nn.Module):
                     scaling_factor=scaling_factor,
                     base=self.rope_theta,
                 )
+            elif scaling_type == "":
+                pass
+            elif scaling_type in [
+                "default",
+                "linear",
+                "dynamic",
+                "yarn",
+                "longrope",
+                "llama3",
+            ]:
+                raise ValueError(
+                    f"RoPE scaling type '{scaling_type}' is within the valid but not supported options."
+                )
             else:
                 raise ValueError(f"Unknown RoPE scaling type {scaling_type}")
 
