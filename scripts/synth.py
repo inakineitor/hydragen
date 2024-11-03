@@ -126,12 +126,19 @@ def go_sglang(
     input_ids = tokenizer.encode(input_text)[:num_shared]
 
     # Set up sampling parameters
-    sampling_params = SGLangSamplingParams(
-        temperature=TEMPERATURE,
-        n=bs,
-        max_new_tokens=num_unique,
-        stop_token_ids=[],  # TODO: Remove this line after PR has been merged
-    ).to_srt_kwargs()  # Convert to dict if needed by SGLang
+    # sampling_params = SGLangSamplingParams(
+    #     temperature=TEMPERATURE,
+    #     n=bs,
+    #     max_new_tokens=num_unique,
+    #     stop_token_ids=[],  # TODO: Remove this line after PR has been merged
+    # ).to_srt_kwargs()  # Convert to dict if needed by SGLang
+
+    sampling_params = {
+        "temperature": TEMPERATURE,
+        "n": bs,
+        "max_new_tokens": num_unique,
+        "stop_token_ids": [],
+    }
 
     def func():
         # Generate using the input_ids parameter
