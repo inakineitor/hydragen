@@ -130,6 +130,7 @@ def go_sglang(
         temperature=TEMPERATURE,
         n=bs,
         max_new_tokens=num_unique,
+        stop_token_ids=[],  # TODO: Remove this line after PR has been merged
     ).to_srt_kwargs()  # Convert to dict if needed by SGLang
 
     def func():
