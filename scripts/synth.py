@@ -1,3 +1,5 @@
+import inspect
+
 from hydragen.llama import HydragenLlamaForCausalLM
 from transformers import AutoTokenizer, PreTrainedTokenizerFast
 
@@ -142,6 +144,7 @@ def go_sglang(
 
     def func():
         # Generate using the input_ids parameter
+        print(inspect.getsource(model.generate))
         out = model.generate(
             input_ids=[input_ids],
             sampling_params=sampling_params,
