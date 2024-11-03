@@ -297,9 +297,12 @@ def flash_attention(
         k,
         v,
         dropout_p=0.0,
-        causal=causal,
         softmax_scale=softmax_scale,
+        causal=causal,
         window_size=(-1, -1),
+        softcap=0.0,  # NOTE: We assume softcap disabled
+        # TODO: After flash_attn fixed the defaults for this function these can be removed
+        alibi_slopes=None,  # TODO: After flash_attn fixes the defaults for this function these can be removed
         return_softmax=False,
     )
 
