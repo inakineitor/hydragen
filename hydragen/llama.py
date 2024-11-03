@@ -719,7 +719,7 @@ class HydragenLlamaModel(nn.Module):
                 base=self.rope_theta,
             )
         else:
-            self.rotary_emb = LlamaRotaryEmbedding(self.config)
+            self.rotary_emb = LlamaRotaryEmbedding(config=self.config)
             # TODO: Delete the following code after clearing that the LlamaRotaryEmbedding works
             # scaling_type = self.config.rope_scaling["rope_type"]
             # scaling_factor = self.config.rope_scaling["factor"]
