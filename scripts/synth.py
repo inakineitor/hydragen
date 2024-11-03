@@ -211,7 +211,8 @@ def sweep(
             gpu_memory_utilization=0.90,
             swap_space=0,  # no cpu offload
             max_num_seqs=max(bs_list),
-            max_paddings=16384,
+            # max_paddings=16384, # NOTE: This option was removed in modern vLLM versions
+            # max_model_len=16384, # NOTE: It is unclear wether this is equivalent to max_paddings
             tensor_parallel_size=tp,
         )
     elif mode == SGLANG:
