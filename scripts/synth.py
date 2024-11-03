@@ -11,7 +11,8 @@ from hydragen.utils import (
 )
 
 from vllm import LLM, SamplingParams as VLLMSamplingParams
-from sglang import Engine, SamplingParams as SGLangSamplingParams
+from sglang import Engine
+from sglang.srt.sampling.sampling_params import SamplingParams as SGLangSamplingParams
 
 import torch
 import torch.distributed as dist
