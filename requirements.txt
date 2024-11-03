@@ -7,3 +7,4 @@ requests==2.32.3
 flash-attn==2.6.3
 pyyaml==6.0.1
 accelerate==1.1.0
+torch==2.4.0
