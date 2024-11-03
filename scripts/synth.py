@@ -1,5 +1,5 @@
 from hydragen.llama import HydragenLlamaForCausalLM
-from transformers import LlamaTokenizer
+from transformers import AutoTokenizer, PreTrainedTokenizerFast
 
 from hydragen.benchmark_utils import timed, split_range, SynthBenchmarkResult
 from hydragen.utils import save_yaml, dataclass_to_dict, dtype_map, is_local
@@ -37,7 +37,7 @@ TEMPERATURE = 100
 
 def go_hydragen(
     model: HydragenLlamaForCausalLM,
-    tokenizer: LlamaTokenizer,
+    tokenizer: PreTrainedTokenizerFast,
     bs: int,
     num_shared: int,
     num_unique: int,
@@ -85,7 +85,7 @@ def go_hydragen(
 
 def go_vllm(
     model: LLM,
-    tokenizer: LlamaTokenizer,
+    tokenizer: PreTrainedTokenizerFast,
     bs: int,
     num_shared: int,
     num_unique: int,
@@ -114,7 +114,7 @@ def go_vllm(
 
 def go_sglang(
     model: Engine,
-    tokenizer: LlamaTokenizer,
+    tokenizer: PreTrainedTokenizerFast,
     bs: int,
     num_shared: int,
     num_unique: int,
@@ -181,7 +181,7 @@ def sweep(
 
     total = len(bs_list) * len(num_shared_list) * len(num_unique_list)
 
-    tokenizer = LlamaTokenizer.from_pretrained(model_name)
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
 
     model_load_start = time.time()
 
