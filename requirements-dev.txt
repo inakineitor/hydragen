@@ -1,5 +1,5 @@
 vllm
-sglang[all]
+sglang[all] @ git+https://github.com/sgl-project/sglang@838dcda
 pytest
 --index-url https://flashinfer.ai/whl/cu121/torch2.4/
 flashinfer
