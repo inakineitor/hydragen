@@ -227,7 +227,7 @@ def sweep(
         )
     elif mode == SGLANG:
         go_func = go_sglang
-        model = Engine(model_path=model_name)
+        model = Engine(model_path=model_name, nnodes=tp, tp_size=tp)
     else:
         raise ValueError(f"Invalid mode '{mode}'")
 
