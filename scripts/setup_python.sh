@@ -4,7 +4,7 @@ export CONDA_ALWAYS_YES="true"
 conda create -n hydragen python=3.11.5
 conda activate hydragen
 # conda install pytorch==2.1.2 torchvision==0.16.2 torchaudio==2.1.2 pytorch-cuda=12.1 -c pytorch -c nvidia # NOTE: Old versions
-conda install pytorch torchvision torchaudio pytorch-cuda=12.4 -c pytorch -c nvidia
+conda install pytorch==2.4.0 torchvision torchaudio pytorch-cuda=12.4 -c pytorch -c nvidia
 # conda install nvidia/label/cuda-12.1.0::cuda # NOTE: asdf
 conda install nvidia/label/cuda-12.4.0::cuda
 
