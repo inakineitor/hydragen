@@ -168,11 +168,14 @@ def unroll_varargs(kernel, N: int):
         "SOURCE FILE SOURCE FILE SOURCE FILE SOURCE FILE SOURCE FILE SOURCE FILE SOURCE FILE SOURCE FILE SOURCE FILE SOURCE FILE SOURCE FILE SOURCE FILE SOURCE FILE SOURCE FILE "
     )
     print(new_src)
+    with open("source.txt", "w") as text_file:
+        text_file.write(new_src)
     code = compile(new_src, fn_filename, "exec")
 
     _locals: Dict[str, Any] = {}
     exec(code, kernel.fn.__globals__, _locals)
     assert len(_locals) == 1, len(_locals)
+    print(_locals.values())
     fn = next(iter(_locals.values()))
     # Patch `getlines` only the first time
     if not _FILENAME_TO_SRC:
