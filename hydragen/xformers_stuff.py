@@ -164,6 +164,10 @@ def unroll_varargs(kernel, N: int):
     fn_filename = f"<unroll_varargs-{kernel.fn.__name__}-{N}>"
 
     # Create function given source
+    print(
+        "SOURCE FILE SOURCE FILE SOURCE FILE SOURCE FILE SOURCE FILE SOURCE FILE SOURCE FILE SOURCE FILE SOURCE FILE SOURCE FILE SOURCE FILE SOURCE FILE SOURCE FILE SOURCE FILE "
+    )
+    print(new_src)
     code = compile(new_src, fn_filename, "exec")
 
     _locals: Dict[str, Any] = {}
