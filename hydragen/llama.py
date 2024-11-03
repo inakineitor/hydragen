@@ -1,3 +1,4 @@
+import transformers
 from transformers.models.llama.modeling_llama import (
     LlamaMLP,
     LlamaRotaryEmbedding,
@@ -80,9 +81,7 @@ class SharedCache(nn.Module):
 
         v_cache = torch.zeros_like(k_cache)
 
-        seq_lens = torch.zeros(
-            (max_batch_size,), dtype=torch.int32, device=device
-        )
+        seq_lens = torch.zeros((max_batch_size,), dtype=torch.int32, device=device)
 
         cumsum_lengths = torch.zeros(
             (max_batch_size + 1,), dtype=torch.int32, device=device
@@ -155,9 +154,7 @@ class SharedCache(nn.Module):
         self.seq_lens[:bs] = seq_lens
         self.cumsum_lengths[: bs + 1] = cumsum_lengths
 
-        self.use_varlen: bool = (
-            seq_lens.max().item() != seq_lens.min().item()
-        )
+        self.use_varlen: bool = seq_lens.max().item() != seq_lens.min().item()
 
         if not self.use_varlen:
             self.sliced_sequence_length = seq_lens[0].item()
@@ -252,7 +249,7 @@ class PerLayerKVCache(nn.Module):
             .expand(bs, -1, n_heads, head_dim)
             .to(torch.int64)
         )
-        
+
         k_out.scatter_(1, expanded_input_pos, k_val)
         v_out.scatter_(1, expanded_input_pos, v_val)
 
@@ -317,7 +314,9 @@ class PerLayerKVCache(nn.Module):
     def get_shared_len(self, final_batch_size: int):
         if self.num_used_shared_caches == 0:
             return torch.zeros(
-                (final_batch_size,), dtype=torch.long, device=self.per_completion_k_cache.device
+                (final_batch_size,),
+                dtype=torch.long,
+                device=self.per_completion_k_cache.device,
             )
         else:
             used_caches = self.get_used_shared_caches()
@@ -332,9 +331,7 @@ class PerLayerKVCache(nn.Module):
     def has_shared(self):
         return self.num_used_shared_caches > 0
 
-    def append_shared(
-        self, key_states: Tensor, value_states: Tensor, seq_lens: Tensor
-    ):
+    def append_shared(self, key_states: Tensor, value_states: Tensor, seq_lens: Tensor):
         if self.num_used_shared_caches >= self.get_num_total_shared_caches():
             raise ValueError(
                 f"No more available shared caches: {self.num_used_shared_caches} {self.get_num_total_shared_caches()}"
@@ -626,7 +623,7 @@ class HydragenLlamaDecoderLayer(nn.Module):
         # Fully Connected
         residual = hidden_states
         hidden_states = self.post_attention_layernorm(hidden_states)
-        
+
         hidden_states = self.mlp(hidden_states)
         hidden_states = residual + hidden_states
 
@@ -977,7 +974,7 @@ class HydragenLlamaForCausalLM(nn.Module):
         # to every token in the sequence during prefill, since it uses
         # lots of memory (and is wasted compute since we only use
         # the last token's logits)
-        
+
         if full_logits:
             to_lm_head = hidden_states
         elif seq_lens is not None:
@@ -1072,7 +1069,10 @@ class HydragenLlamaForCausalLM(nn.Module):
 
     @torch.no_grad()
     def append_shared(
-        self, input_ids: Tensor, seq_lens: Optional[Tensor] = None, full_logits: Optional[bool] = False
+        self,
+        input_ids: Tensor,
+        seq_lens: Optional[Tensor] = None,
+        full_logits: Optional[bool] = False,
     ) -> Tensor:
         """
         Adds a new level of shared cache to the model.
@@ -1247,8 +1247,12 @@ class HydragenLlamaForCausalLM(nn.Module):
             assert total_levels == 2
 
             # shared cache must have a batch size of 1
-            if num_new_levels == 2: assert input_ids[0].shape[0] == 1
-            else: self.model.layers[0].self_attn.kv_cache.shared_caches[0].max_batch_size == 1
+            if num_new_levels == 2:
+                assert input_ids[0].shape[0] == 1
+            else:
+                self.model.layers[0].self_attn.kv_cache.shared_caches[
+                    0
+                ].max_batch_size == 1
         if disable_hierarchy:
             # For the one-level Hydragen baseline, we support
             # prefix + suffix + many completions
@@ -1284,9 +1288,13 @@ class HydragenLlamaForCausalLM(nn.Module):
             shared_seq_lens = seq_lens[:-1]
             suffix_ids = input_ids[-1]
             suffix_seq_lens = seq_lens[-1]
-        else: # passing starting logits instead of ids
-            shared_ids,shared_seq_lens,suffix_ids,suffix_seq_lens = [],[],None,None
-
+        else:  # passing starting logits instead of ids
+            shared_ids, shared_seq_lens, suffix_ids, suffix_seq_lens = (
+                [],
+                [],
+                None,
+                None,
+            )
 
         if starting_logits is not None:
             starting_logits = starting_logits.unsqueeze(1)
@@ -1401,12 +1409,18 @@ class HydragenLlamaForCausalLM(nn.Module):
         model_name_or_path: str,
         **kwargs,
     ):
+        print("ASDFASDFASDFASDFASDFASDFASDFASDFASDFASDFASD")
+        print(kwargs["config"])
+        print(transformers.__version__)
         hf_model = LlamaForCausalLM.from_pretrained(model_name_or_path, **kwargs)
 
         if hf_model.dtype != torch.float16 and hf_model.dtype != torch.bfloat16:
             raise ValueError(
                 f"Model must be in float16 or bfloat16, not {hf_model.dtype}"
             )
+
+        print("CONFIG CONFIG ==================================")
+        print(hf_model.config)
 
         with init_empty_weights(include_buffers=False):
             model = cls(
