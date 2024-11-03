@@ -10,8 +10,7 @@ from hydragen.utils import (
     maybe_init_dist,
 )
 
-from vllm import LLM, SamplingParams as VLLMSamplingParams
-from sglang import Engine, SamplingParams as SGLangSamplingParams
+from vllm import LLM, SamplingParams
 
 import torch
 import torch.distributed as dist
@@ -56,13 +55,11 @@ def go_hydragen(
     if num_unique != 1:
         model.setup_caches(
             max_unique_batch_size=bs,
-            max_unique_seq_length=(
-                num_unique + num_shared if disable_hydragen else num_unique
-            ),
+            max_unique_seq_length=num_unique + num_shared if disable_hydragen else num_unique,
             max_shared_batch_sizes=[1],
-            max_shared_seq_lengths=[num_shared],
+            max_shared_seq_lengths=[num_shared]
         )
-
+        
         model.graph()
 
     def func():
@@ -93,7 +90,7 @@ def go_vllm(
 ):
     input_ids = tokenizer.encode("this is a sentence" * (num_shared // 4))[:num_shared]
 
-    sampling_params = VLLMSamplingParams(
+    sampling_params = SamplingParams(
         temperature=TEMPERATURE,
         n=bs,
         max_tokens=num_unique,
@@ -111,47 +108,11 @@ def go_vllm(
     return times, warmup_times
 
 
-def go_sglang(
-    model: Engine,
-    tokenizer: LlamaTokenizer,
-    bs: int,
-    num_shared: int,
-    num_unique: int,
-    num_warmup: int,
-    num_iters: int,
-):
-    # Prepare input text and tokenize to get input_ids
-    input_text = "this is a sentence" * (num_shared // 4)
-    input_ids = tokenizer.encode(input_text)[:num_shared]
-
-    # Set up sampling parameters
-    sampling_params = SGLangSamplingParams(
-        temperature=TEMPERATURE,
-        n=bs,
-        max_new_tokens=num_unique,
-    ).to_srt_kwargs()  # Convert to dict if needed by SGLang
-
-    def func():
-        # Generate using the input_ids parameter
-        out = model.generate(
-            input_ids=[input_ids],
-            sampling_params=sampling_params,
-        )
-
-    # Measure execution times
-    times, warmup_times = timed(
-        func, num_warmup=num_warmup, num_iters=num_iters, return_type="both_times"
-    )
-
-    return times, warmup_times
-
-
 HYDRAGEN = "hydragen"
 HYDRAGEN_NOSHARED = "hydragen_noshared"
 NOATTENTION = "noattention"
 VLLM = "vllm"
 VLLM_NOTOK = "vllm_notok"
-SGLANG = "sglang"
 
 
 def sweep(
@@ -163,7 +124,7 @@ def sweep(
     num_warmup: int = 5,
     mode: str = "us",
     tp_dir: Optional[Path] = None,
-    model_name: str = "meta-llama/Llama-3.1-8B",
+    model_name: str = "meta-llama/Llama-2-70b-hf",
     tp: int = 1,
     calc_prefill: bool = True,
 ):
@@ -213,9 +174,6 @@ def sweep(
             max_paddings=16384,
             tensor_parallel_size=tp,
         )
-    elif mode == SGLANG:
-        go_func = go_sglang
-        model = Engine(model_path=model_name)
     else:
         raise ValueError(f"Invalid mode '{mode}'")
 
