@@ -718,7 +718,7 @@ class HydragenLlamaModel(nn.Module):
                 base=self.rope_theta,
             )
         else:
-            scaling_type = self.config.rope_scaling["type"]
+            scaling_type = self.config.rope_scaling["rope_type"]
             scaling_factor = self.config.rope_scaling["factor"]
             if scaling_type == "linear":
                 self.rotary_emb = LlamaLinearScalingRotaryEmbedding(
@@ -1409,18 +1409,12 @@ class HydragenLlamaForCausalLM(nn.Module):
         model_name_or_path: str,
         **kwargs,
     ):
-        print("ASDFASDFASDFASDFASDFASDFASDFASDFASDFASDFASD")
-        print(kwargs["config"])
-        print(transformers.__version__)
         hf_model = LlamaForCausalLM.from_pretrained(model_name_or_path, **kwargs)
 
         if hf_model.dtype != torch.float16 and hf_model.dtype != torch.bfloat16:
             raise ValueError(
                 f"Model must be in float16 or bfloat16, not {hf_model.dtype}"
             )
-
-        print("CONFIG CONFIG ==================================")
-        print(hf_model.config)
 
         with init_empty_weights(include_buffers=False):
             model = cls(
