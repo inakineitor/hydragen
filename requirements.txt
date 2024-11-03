@@ -4,6 +4,6 @@ tqdm==4.66.6
 matplotlib==3.8.2
 typer==0.9.0
 requests==2.32.3
-flash-attn @ git+https://github.com/Dao-AILab/flash-attention.git@v2.3.6
+flash-attn==2.6.3
 pyyaml==6.0.1
 accelerate==1.1.0
