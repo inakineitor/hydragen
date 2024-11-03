@@ -45,6 +45,7 @@ def repeat_to_batch_size(tensors: list[Tensor], target_batch_size: int | None = 
     return repeated_tensors
 
 
+# TODO: Update Hydragen rotary embeddings
 class HydragenLlamaRotaryEmbedding(LlamaRotaryEmbedding):
     cos_cached: Tensor
     sin_cached: Tensor
@@ -718,37 +719,39 @@ class HydragenLlamaModel(nn.Module):
                 base=self.rope_theta,
             )
         else:
-            scaling_type = self.config.rope_scaling["rope_type"]
-            scaling_factor = self.config.rope_scaling["factor"]
-            if scaling_type == "linear":
-                self.rotary_emb = LlamaLinearScalingRotaryEmbedding(
-                    self.config.hidden_size // self.config.num_attention_heads,
-                    max_position_embeddings=self.max_position_embeddings,
-                    scaling_factor=scaling_factor,
-                    base=self.rope_theta,
-                )
-            elif scaling_type == "dynamic":
-                self.rotary_emb = LlamaDynamicNTKScalingRotaryEmbedding(
-                    self.config.hidden_size // self.config.num_attention_heads,
-                    max_position_embeddings=self.max_position_embeddings,
-                    scaling_factor=scaling_factor,
-                    base=self.rope_theta,
-                )
-            elif scaling_type == "":
-                pass
-            elif scaling_type in [
-                "default",
-                "linear",
-                "dynamic",
-                "yarn",
-                "longrope",
-                "llama3",
-            ]:
-                raise ValueError(
-                    f"RoPE scaling type '{scaling_type}' is within the valid but not supported options."
-                )
-            else:
-                raise ValueError(f"Unknown RoPE scaling type {scaling_type}")
+            self.rotary_emb = LlamaRotaryEmbedding(self.config)
+            # TODO: Delete the following code after clearing that the LlamaRotaryEmbedding works
+            # scaling_type = self.config.rope_scaling["rope_type"]
+            # scaling_factor = self.config.rope_scaling["factor"]
+            # if scaling_type == "linear":
+            #     self.rotary_emb = LlamaLinearScalingRotaryEmbedding(
+            #         self.config.hidden_size // self.config.num_attention_heads,
+            #         max_position_embeddings=self.max_position_embeddings,
+            #         scaling_factor=scaling_factor,
+            #         base=self.rope_theta,
+            #     )
+            # elif scaling_type == "dynamic":
+            #     self.rotary_emb = LlamaDynamicNTKScalingRotaryEmbedding(
+            #         self.config.hidden_size // self.config.num_attention_heads,
+            #         max_position_embeddings=self.max_position_embeddings,
+            #         scaling_factor=scaling_factor,
+            #         base=self.rope_theta,
+            #     )
+            # elif scaling_type == "":
+            #     pass
+            # elif scaling_type in [
+            #     "default",
+            #     "linear",
+            #     "dynamic",
+            #     "yarn",
+            #     "longrope",
+            #     "llama3",
+            # ]:
+            #     raise ValueError(
+            #         f"RoPE scaling type '{scaling_type}' is within the valid but not supported options."
+            #     )
+            # else:
+            #     raise ValueError(f"Unknown RoPE scaling type {scaling_type}")
 
     def forward(
         self,
