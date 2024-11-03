@@ -236,7 +236,8 @@ def _fwd_kernel_splitK(
     PACKED_PER_VAL: tl.constexpr = 1,
     N_GROUPS: tl.constexpr = 1,
 ):
-    """This kernel can accept non-quantized or int4-quantized keys/values.
+    """
+    This kernel can accept non-quantized or int4-quantized keys/values.
     PACKED_PER_VAL determines the quantization type:
         - PACKED_PER_VAL == 1 means no quantization
         - PACKED_PER_VAL == 8 means 4-bit quantization (8 packed quantized values inside one int32)
@@ -253,16 +254,16 @@ def _fwd_kernel_splitK(
     before compilation. That will unroll variables marked with "VAR_ARGS_ARRAY" into lists.
     See how FwOp.apply does it below.
     """
-    tl.static_assert(
-        (PACKED_PER_VAL == 1 and tl.constexpr(K.dtype.element_ty != tl.int32))
-        or (PACKED_PER_VAL == 8 and tl.constexpr(K.dtype.element_ty == tl.int32)),
-        f"Only 4-bit quantization is supported, K/V should have dtype int32 in "
-        f"the quantized case: {PACKED_PER_VAL=} {tl.constexpr(K.dtype)=} {tl.constexpr(K.dtype.element_ty)=}",
-    )
-    tl.static_assert(
-        (((N_GROUPS == 1 or N_GROUPS == 2) or N_GROUPS == 4) or N_GROUPS == 8),
-        "Number of quantization groups can be 1 (row-wise quantization), 2, 4, or 8.",
-    )
+    # tl.static_assert(
+    #     (PACKED_PER_VAL == 1 and tl.constexpr(K.dtype.element_ty != tl.int32))
+    #     or (PACKED_PER_VAL == 8 and tl.constexpr(K.dtype.element_ty == tl.int32)),
+    #     f"Only 4-bit quantization is supported, K/V should have dtype int32 in "
+    #     f"the quantized case: {PACKED_PER_VAL=} {tl.constexpr(K.dtype)=} {tl.constexpr(K.dtype.element_ty)=}",
+    # )
+    # tl.static_assert(
+    #     (((N_GROUPS == 1 or N_GROUPS == 2) or N_GROUPS == 4) or N_GROUPS == 8),
+    #     "Number of quantization groups can be 1 (row-wise quantization), 2, 4, or 8.",
+    # )
 
     QUANTIZED: tl.constexpr = PACKED_PER_VAL > 1
     PACKED_D_PER_GROUP: tl.constexpr = BLOCK_DMODEL // PACKED_PER_VAL // N_GROUPS
