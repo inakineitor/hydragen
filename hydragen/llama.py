@@ -50,7 +50,7 @@ class HydragenLlamaRotaryEmbedding(LlamaRotaryEmbedding):
     cos_cached: Tensor
     sin_cached: Tensor
 
-    def forward(self, x: Tensor, seq_len=None):
+    def forward(self, x: Tensor, poision_ids: Optional[Tensor] = None, seq_len=None):
         return (
             self.cos_cached.to(dtype=x.dtype),
             self.sin_cached.to(dtype=x.dtype),
@@ -480,7 +480,9 @@ class HydragenLlamaAttention(nn.Module):
             bsz, q_len, self.num_key_value_heads, self.head_dim
         )
 
-        cos, sin = self.rotary_emb(value_states)
+        cos, sin = self.rotary_emb(
+            value_states, position_ids
+        )  # TODO: Unsure if position_ids should be wrapped or not
 
         if self.disable_hydragen:
             unique_position_ids = position_ids
